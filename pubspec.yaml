@@ -1,5 +1,5 @@
-name: seveniffs
-description: "7iffs — um diff checker rápido e portátil para desktop e mobile."
+name: sevendiffs
+description: "7diffs — diff checker rápido e portátil para desktop e mobile."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none'
@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  file_picker: ^5.4.1
+  file_picker: ^11.0.0
 
 dev_dependencies:
   flutter_test:
