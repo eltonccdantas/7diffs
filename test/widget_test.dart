@@ -1,30 +1,34 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+// Smoke test — verifies the app builds and the welcome dialog appears on launch.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:seveniffs/main.dart';
+import 'package:sevendiffs/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('app renders and shows welcome dialog on launch', (tester) async {
+    await tester.pumpWidget(const SevenDiffsApp());
+    await tester.pump(); // allow postFrameCallback to fire
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Welcome dialog title should be visible
+    expect(find.text('Supported formats'), findsOneWidget);
+    expect(find.text('Got it'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('welcome dialog closes on Got it', (tester) async {
+    await tester.pumpWidget(const SevenDiffsApp());
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Supported formats'), findsNothing);
+  });
+
+  testWidgets('app bar actions are present', (tester) async {
+    await tester.pumpWidget(const SevenDiffsApp());
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.swap_horiz), findsOneWidget);
+    expect(find.byIcon(Icons.delete_sweep_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
   });
 }

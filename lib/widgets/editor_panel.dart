@@ -38,11 +38,20 @@ class _EditorPanelState extends State<EditorPanel> {
     if (result != null && result.files.isNotEmpty) {
       final file = result.files.first;
       String content;
-      if (file.bytes != null) {
-        content = String.fromCharCodes(file.bytes!);
-      } else if (file.path != null) {
-        content = await File(file.path!).readAsString();
-      } else {
+      try {
+        if (file.bytes != null) {
+          content = String.fromCharCodes(file.bytes!);
+        } else if (file.path != null) {
+          content = await File(file.path!).readAsString();
+        } else {
+          return;
+        }
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not read file — it may be binary or corrupted.')),
+          );
+        }
         return;
       }
       setState(() => _fileName = file.name);
@@ -109,13 +118,13 @@ class _EditorPanelState extends State<EditorPanel> {
               const Spacer(),
               _HeaderButton(
                 icon: Icons.folder_open_outlined,
-                tooltip: 'Abrir arquivo',
+                tooltip: 'Open file',
                 onTap: _pickFile,
               ),
               const SizedBox(width: 4),
               _HeaderButton(
                 icon: Icons.clear,
-                tooltip: 'Limpar',
+                tooltip: 'Clear',
                 onTap: widget.controller.text.isEmpty ? null : _clear,
               ),
             ],
@@ -162,7 +171,7 @@ class _EditorPanelState extends State<EditorPanel> {
                   ),
                   decoration: InputDecoration(
                     hintText: _isDragOver
-                        ? 'Soltar aqui...'
+                        ? 'Drop here...'
                         : widget.hintText,
                     hintStyle: TextStyle(
                       color: cs.onSurfaceVariant.withValues(alpha: 0.4),
@@ -181,8 +190,13 @@ class _EditorPanelState extends State<EditorPanel> {
         ValueListenableBuilder(
           valueListenable: widget.controller,
           builder: (context, value, _) {
-            final lines = value.text.isEmpty ? 0 : value.text.split('\n').length;
-            final chars = value.text.length;
+            final text = value.text;
+            final lines = text.isEmpty
+                ? 0
+                : text.endsWith('\n')
+                    ? text.split('\n').length - 1
+                    : text.split('\n').length;
+            final chars = text.length;
             return Container(
               height: 24,
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -192,7 +206,7 @@ class _EditorPanelState extends State<EditorPanel> {
               ),
               alignment: Alignment.centerRight,
               child: Text(
-                '$lines linhas  ·  $chars caracteres',
+                '$lines lines  ·  $chars characters',
                 style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
               ),
             );

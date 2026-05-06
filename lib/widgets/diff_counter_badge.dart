@@ -67,7 +67,7 @@ class DiffCounterBadge extends StatelessWidget {
                     )
                   : Text(
                       key: const ValueKey('identical'),
-                      result!.isEmpty ? '' : 'Textos idênticos — nenhuma diferença encontrada',
+                      result!.isEmpty ? '' : 'Texts are identical — no differences found',
                       style: TextStyle(
                         fontSize: 12,
                         color: isDark
@@ -95,11 +95,11 @@ class DiffCounterBadge extends StatelessWidget {
   }
 
   String _buildDescription(int hunks, DiffResult result, bool isExactlySeven) {
-    final hunkWord = hunks == 1 ? 'bloco' : 'blocos';
+    final hunkWord = hunks == 1 ? 'block' : 'blocks';
     if (isExactlySeven) {
-      return '🎯 7 diferenças encontradas! Você encontrou os 7 erros!';
+      return '🎯 7 differences found! You found all 7 errors!';
     }
-    return '$hunks $hunkWord de diferença  ·  ${result.unchangedLines} linhas iguais';
+    return '$hunks $hunkWord of difference  ·  ${result.unchangedLines} unchanged lines';
   }
 }
 

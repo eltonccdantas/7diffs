@@ -233,6 +233,7 @@ class DiffEngine {
   // keepSide=true → keep deletions (show what was removed)
   // keepSide=false → keep insertions (show what was added)
   List<InlineSegment> _charLevelDiff(String a, String b, {required bool keepSide}) {
+    if (a == b) return [InlineSegment(a, false)];
     final aRunes = a.runes.toList();
     final bRunes = b.runes.toList();
     final m = aRunes.length;

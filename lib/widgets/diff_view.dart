@@ -25,7 +25,7 @@ class DiffView extends StatelessWidget {
               child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary),
             ),
             const SizedBox(height: 12),
-            Text('Calculando diferenças...', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+            Text('Computing differences...', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
           ],
         ),
       );
@@ -54,12 +54,12 @@ class _EmptyState extends StatelessWidget {
           Icon(Icons.compare_arrows, size: 48, color: cs.onSurfaceVariant.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
-            'Cole ou abra arquivos nos painéis acima',
+            'Paste or open files in the panels above',
             style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
-            'O diff aparece aqui em tempo real',
+            'The diff appears here in real time',
             style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.35), fontSize: 12),
           ),
         ],
@@ -71,20 +71,22 @@ class _EmptyState extends StatelessWidget {
 class _NoDiffState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle_outline, size: 48, color: AppTheme.addedFgDark),
+          Icon(Icons.check_circle_outline, size: 48, color: isDark ? AppTheme.addedFgDark : AppTheme.addedFgLight),
           const SizedBox(height: 16),
           Text(
-            'Os textos são idênticos',
+            'Texts are identical',
             style: TextStyle(color: cs.onSurface, fontSize: 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
           Text(
-            'Nenhuma diferença encontrada',
+            'No differences found',
             style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 12),
           ),
         ],
@@ -258,7 +260,7 @@ class DiffPanelHeader extends StatelessWidget {
     if (result == null) return;
     final sb = StringBuffer();
     sb.writeln('--- original');
-    sb.writeln('+++ modificado');
+    sb.writeln('+++ modified');
     for (final line in result!.lines) {
       final marker = switch (line.type) {
         DiffType.insert => '+',
@@ -269,7 +271,7 @@ class DiffPanelHeader extends StatelessWidget {
     }
     Clipboard.setData(ClipboardData(text: sb.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Diff copiado para a área de transferência'), duration: Duration(seconds: 2)),
+      const SnackBar(content: Text('Diff copied to clipboard'), duration: Duration(seconds: 2)),
     );
   }
 
@@ -315,7 +317,7 @@ class DiffPanelHeader extends StatelessWidget {
           const Spacer(),
           if (hasResult)
             Tooltip(
-              message: 'Copiar diff unificado',
+              message: 'Copy unified diff',
               child: InkWell(
                 onTap: () => _copyDiff(context),
                 borderRadius: BorderRadius.circular(4),
