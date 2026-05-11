@@ -1,0 +1,124 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  # ── Android ───────────────────────────────────────────────────────────────
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter build apk --release
+
+      - name: Rename artifact
+        run: mv build/app/outputs/flutter-apk/app-release.apk 7diffs-android.apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: 7diffs-android.apk
+
+  # ── macOS ─────────────────────────────────────────────────────────────────
+  macos:
+    name: macOS App
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter build macos --release
+
+      - name: Package as zip
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r "$GITHUB_WORKSPACE/7diffs-macos.zip" 7diffs.app
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: 7diffs-macos.zip
+
+  # ── Windows ───────────────────────────────────────────────────────────────
+  windows:
+    name: Windows App
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter build windows --release
+
+      - name: Package as zip
+        shell: pwsh
+        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath 7diffs-windows.zip
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: 7diffs-windows.zip
+
+  # ── Linux ─────────────────────────────────────────────────────────────────
+  linux:
+    name: Linux App
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev \
+            libsecret-1-dev libjsoncpp-dev
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - run: flutter build linux --release
+
+      - name: Package as tar.gz
+        run: tar -czf 7diffs-linux-x64.tar.gz -C build/linux/x64/release/bundle .
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: 7diffs-linux-x64.tar.gz
