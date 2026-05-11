@@ -153,41 +153,17 @@ class _HomeScreenState extends State<HomeScreen>
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final isDark = widget.themeMode == ThemeMode.dark;
+    final scheme = Theme.of(context).colorScheme;
 
     return AppBar(
       toolbarHeight: 48,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: AppTheme.brand,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Center(
-              child: Text(
-                '7',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  fontFamily: 'monospace',
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'diffs',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ],
+      title: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.asset(
+          'assets/icon/icon.png',
+          height: 34,
+          filterQuality: FilterQuality.high,
+        ),
       ),
       actions: [
         Tooltip(
@@ -208,8 +184,9 @@ class _HomeScreenState extends State<HomeScreen>
           message: isDark ? 'Light mode' : 'Dark mode',
           child: IconButton(
             icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              size: 20,
+              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              size: 22,
+              color: scheme.onSurface.withValues(alpha: 0.45),
             ),
             onPressed: widget.onToggleTheme,
           ),
@@ -230,7 +207,45 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  Widget _buildFooter(ColorScheme scheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => launchUrl(Uri.parse('https://eltondantas.com')),
+              child: Text(
+                'eltondantas.com =)',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: scheme.primary.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                  decorationColor: scheme.primary.withValues(alpha: 0.3),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            _appVersion,
+            style: TextStyle(
+              fontSize: 11,
+              color: scheme.onSurface.withValues(alpha: 0.22),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildWideLayout() {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         // Input panels
@@ -277,6 +292,7 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
+        _buildFooter(scheme),
       ],
     );
   }
@@ -347,6 +363,7 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
         ),
+        _buildFooter(cs),
       ],
     );
   }
@@ -364,10 +381,14 @@ class _WelcomeDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: scheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Row(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.difference_outlined, color: scheme.primary, size: 22),
-          const SizedBox(width: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(11),
+            child: Image.asset('assets/icon/icon.png', height: 48, filterQuality: FilterQuality.high),
+          ),
+          const SizedBox(height: 8),
           Text(
             'Supported formats',
             style: TextStyle(
